@@ -51,6 +51,18 @@ const float MAX_SHIP_DELTA				=  0.0001f;				// Lower, Upper Bounds //
 const float VECTOR_SIZE					= 0.01f;
 const char  DEFAULT_TITLE[]				= "MOUSE: RIPPLES; KEYBOARD: COLORS (wrygcbmn)";
 
+//NEW
+//3 Movements
+void CohesionShips();
+void AllignmentShips();
+void SeperationShips();
+
+
+//Mulipliers
+int G_CohesionMultiplier = 0;
+int G_AllignmentMultiplier = 0;
+int G_SeperationMultiplier = 0;
+
 enum color { white, red, yellow, green, cyan, blue, magenta, none };	// Color Index Values //
 
 ////////////////////////////////////////
@@ -147,6 +159,12 @@ void Display();
 void InitShips();
 void Normalize(float vector[]);
 void ResizeWindow(GLsizei w, GLsizei h);
+//NEW
+//Movements
+
+//Title
+void ConvertToCharacterArray(int value, char valueArray[]);
+void UpdateTitleBar();
 
 
 /* The main function: uses the OpenGL Utility Toolkit to set */
@@ -237,6 +255,10 @@ void TimerFunction(int value)
 		++circleList;
 	}
 	DisplaceShips();
+	//3 Movements
+	CohesionShips();
+	AllignmentShips();
+	SeperationShips();
 
 	// Force a redraw after 20 milliseconds. //
 	glutPostRedisplay();
@@ -285,6 +307,168 @@ void DisplaceShips()
 	}
 }
 
+
+/* Function to cycle through the ships and determine whether */
+/* any ripple is encapsulating a ship's center. If so, the   */
+/* ship's position is modified to reflect the displacement   */
+/* caused by the emanating ripple.                           */
+void CohesionShips()
+{
+	int i, j;
+	Ship shp;
+	Ripple cir;
+	//float intensity;
+	float sumX = 0;
+	float sumY = 0;
+	int tally = 0; //number of ships in area
+
+	for (i = 1; i <= shipList.getSize(); i++)
+	{
+		shp = shipList.getHeadValue();
+		shipList.removeHead();
+		for (j = 1; j <= circleList.getSize(); j++)
+		{
+			cir = circleList.getHeadValue();
+
+			if (pow(cir.pos[0] - shp.pos[0], 2) + pow(cir.pos[1] - shp.pos[1], 2) < pow(cir.rad, 2))
+			{
+				sumX += shp.pos[0];
+				sumY += shp.pos[1];
+
+				shp.pos[0] = (sumX / tally) * G_CohesionMultiplier;
+				shp.pos[1] = (sumY / tally) * G_CohesionMultiplier;
+			}
+		++circleList;
+		//tally = circleList.getSize(); //total number of shits in the circle.
+		++tally;
+		}
+		Normalize(shp.delta);
+		shipList.insert(shp);
+		++shipList;
+	}
+}
+
+/* Function to cycle through the ships and determine whether */
+/* any ripple is encapsulating a ship's center. If so, the   */
+/* ship's position is modified to reflect the displacement   */
+/* caused by the emanating ripple.                           */
+void AllignmentShips()
+{
+	int i, j;
+	Ship shp;
+	Ripple cir;
+	//float intensity;
+	float sumDeltaX = 0;
+	float sumDeltaY = 0;
+	int tally =0; //number of ships in area
+
+	for (i = 1; i <= shipList.getSize(); i++)
+	{
+		shp = shipList.getHeadValue();
+		shipList.removeHead();
+		for (j = 1; j <= circleList.getSize(); j++)
+		{
+			cir = circleList.getHeadValue();
+
+			if (pow(cir.pos[0] - shp.pos[0], 2) + pow(cir.pos[1] - shp.pos[1], 2) < pow(cir.rad, 2))
+			{
+				sumDeltaX += shp.delta[0];
+				sumDeltaY += shp.delta[1];
+
+				shp.pos[0] = (sumDeltaX / tally) * G_AllignmentMultiplier;
+				shp.pos[1] = (sumDeltaY / tally) * G_AllignmentMultiplier;
+			}
+			++circleList;
+			//tally = circleList.getSize(); //total number of shits in the circle.
+			++tally;
+		}
+		Normalize(shp.delta);
+		shipList.insert(shp);
+		++shipList;
+	}
+}
+
+/* Function to cycle through the ships and determine whether */
+/* any ripple is encapsulating a ship's center. If so, the   */
+/* ship's position is modified to reflect the displacement   */
+/* caused by the emanating ripple.                           */
+void SeperationShips()
+{
+	int i, j;
+	Ship shp;
+	Ripple cir;
+	//float intensity;
+	float minX = 0;
+	float minY = 0;
+	//int tally; //number of ships in area
+
+	for (i = 1; i <= shipList.getSize(); i++)
+	{
+		shp = shipList.getHeadValue();
+		shipList.removeHead();
+		for (j = 1; j <= circleList.getSize(); j++)
+		{
+			cir = circleList.getHeadValue();
+
+			if (pow(cir.pos[0] - shp.pos[0], 2) + pow(cir.pos[1] - shp.pos[1], 2) < pow(cir.rad, 2))
+			{
+				minX = shp.pos[0];
+				minY = shp.pos[1];
+
+				shp.pos[0] = minX * G_SeperationMultiplier;
+				shp.pos[1] = minY * G_SeperationMultiplier;
+			}
+			++circleList;
+			//tally = circleList.getSize(); //total number of shits in the circle.
+			//++tally;
+		}
+		Normalize(shp.delta);
+		shipList.insert(shp);
+		++shipList;
+	}
+}
+
+// Convert the parameterized integer value into the
+// corresponding character array representing that value.
+void ConvertToCharacterArray(int value, char valueArray[])
+{
+	char digitStr[4] = "0";
+	if (value < 10)
+	{
+		digitStr[0] = char(value + int('0'));
+		strcat_s(valueArray, 4, digitStr);
+	}
+	else
+	{
+		ConvertToCharacterArray(value / 10, valueArray);
+		digitStr[0] = char(value % 10 + int('0'));
+		strcat_s(valueArray, 4, digitStr);
+	}
+}
+
+/* Function to update the window title bar to indicate */
+/* the cohesion, allignment and seperation multipliers */
+void UpdateTitleBar()
+{
+	char label[100] = "Values: ";
+
+	char CohesionLabel[15] = "";
+	ConvertToCharacterArray(G_CohesionMultiplier, CohesionLabel);
+	strcat_s(label, 100, CohesionLabel);
+	strcat_s(label, 100, " Cohesion: ");
+
+	char AllignmentLabel[15] = "";
+	ConvertToCharacterArray(G_AllignmentMultiplier, AllignmentLabel);
+	strcat_s(label, 100, AllignmentLabel);
+	strcat_s(label, 100, " Allignment ");
+
+	char SeperationLabel[15] = "";
+	ConvertToCharacterArray(G_SeperationMultiplier, SeperationLabel);
+	strcat_s(label, 100, " Seperation: ");
+	strcat_s(label, 100, SeperationLabel);
+
+	glutSetWindowTitle(label);
+}
 
 /* Principal display routine: clears the frame buffer and */
 /* draws the ripples and the ships within the window.     */
