@@ -1,6 +1,7 @@
 /********************************************************************/
 /* Filename: PreFlocking.cpp                                        */
 /* Last modified: 19 Apr 17 by Joshua Haupt                         */
+/* Version 1                                                        */
 /*                                                                  */
 /* This program generates a large 2D system of delta-shaped "ships" */
 /* that float on an empty background. The user generates disruptive */
@@ -21,7 +22,7 @@
 #include <ctime>			// Header File For Accessing System Time
 #include "LinkedList.h"		// Header File For Linked List Class       //
 #include <cstring>			// Header File For String Operations       //
-#include <iostream>			// Header File For Initial User Input from console
+#include <iostream>			// Header File For Initial User Instructions //
 using namespace std;
 
 //////////////////////
