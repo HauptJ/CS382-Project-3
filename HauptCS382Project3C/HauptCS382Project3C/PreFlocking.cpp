@@ -1,6 +1,7 @@
 /********************************************************************/
 /* Filename: PreFlocking.cpp                                        */
 /* Last modified: 19 Apr 17 by Joshua Haupt                         */
+/* Version 2                                                        */
 /*                                                                  */
 /* This program generates a large 2D system of delta-shaped "ships" */
 /* that float on an empty background. The user generates disruptive */
@@ -21,7 +22,7 @@
 #include <ctime>			// Header File For Accessing System Time
 #include "LinkedList.h"		// Header File For Linked List Class       //
 #include <cstring>			// Header File For String Operations       //
-#include <iostream>			// Header File For Initial User Input from console
+#include <iostream>			// Header File For Initial Instructions    //
 using namespace std;
 
 //////////////////////
@@ -124,9 +125,6 @@ class Ship
 			float currColor[3] = { CIRCLE_COLOR[int(clr)][0],
 									CIRCLE_COLOR[int(clr)][1],
 									CIRCLE_COLOR[int(clr)][2] };
-
-			/*pos[0] += xInc;
-			pos[1] += yInc;*/
 
 			glColor3fv(currColor);
 			glLineWidth(SHIP_THICKNESS);
@@ -332,10 +330,6 @@ void TimerFunction(int value)
 		currShp.pos[0] += currShp.xInc;
 		currShp.pos[1] += currShp.yInc;
 
-		/*CohesionShips();
-		AllignmentShips();
-		SeperationShips();*/
-
 		AdjustToWindow(currShp);
 
 		++shipList;
@@ -354,9 +348,9 @@ void TimerFunction(int value)
 
 	DisplaceShips();
 	//3 Movements - works, but not like it should
-	/*CohesionShips();
+	CohesionShips();
 	AllignmentShips();
-	SeperationShips();*/
+	SeperationShips();
 
 	UpdateTitleBar();
 
@@ -463,7 +457,6 @@ void CohesionShips()
 {
 	int i, j;
 	Ship shp;
-	//Ripple cir;
 	float sumX = 0;
 	float sumY = 0;
 	int tally = 0; //number of ships in area
@@ -474,7 +467,6 @@ void CohesionShips()
 		shipList.removeHead();
 		for (j = 1; j <= circleList.getSize(); j++)
 		{
-			//cir = circleList.getHeadValue();
 
 			if (pow(shp.pos[0], 2) + pow(shp.pos[1], 2) < pow(shp.rad, 2))
 			{
@@ -501,7 +493,6 @@ void AllignmentShips()
 {
 	int i, j;
 	Ship shp;
-	//Ripple cir;
 	float sumDeltaX = 0;
 	float sumDeltaY = 0;
 	int tally = 0; //number of ships in area
@@ -512,7 +503,6 @@ void AllignmentShips()
 		shipList.removeHead();
 		for (j = 1; j <= circleList.getSize(); j++)
 		{
-			//cir = circleList.getHeadValue();
 
 			if (pow(shp.pos[0], 2) + pow(shp.pos[1], 2) < pow(shp.rad, 2))
 			{
@@ -539,7 +529,6 @@ void SeperationShips()
 {
 	int i, j;
 	Ship shp;
-	//Ripple cir;
 	float minX = 0;
 	float minY = 0;
 
@@ -549,7 +538,6 @@ void SeperationShips()
 		shipList.removeHead();
 		for (j = 1; j <= circleList.getSize(); j++)
 		{
-			//cir = circleList.getHeadValue();
 
 			if (pow(shp.pos[0], 2) + pow(shp.pos[1], 2) < pow(shp.rad, 2))
 			{
@@ -629,9 +617,6 @@ void Display()
 	for (i = 1; i <= shipList.getSize(); i++)
 	{
 		shp = shipList.getHeadValue();
-
-		/*shp.pos[0] += shp.xInc;
-		shp.pos[1] += shp.yInc;*/
 
 		shp.draw();
 		++shipList;
