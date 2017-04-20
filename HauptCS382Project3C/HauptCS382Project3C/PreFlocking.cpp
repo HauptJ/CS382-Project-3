@@ -20,6 +20,7 @@
 #include <ctime>			// Header File For Accessing System Time
 #include "LinkedList.h"		// Header File For Linked List Class       //
 #include <cstring>			// Header File For String Operations       //
+#include <iostream>			// Header File For Initial User Input from console
 using namespace std;
 
 //////////////////////
@@ -147,9 +148,9 @@ color currColor			= none;			// Current new ripple color.       //
 
 //NEW
 //Mulipliers
-int G_CohesionMultiplier = 3;
-int G_AllignmentMultiplier = 3;
-int G_SeperationMultiplier = 10;
+int G_CohesionMultiplier = 0;
+int G_AllignmentMultiplier = 0;
+int G_SeperationMultiplier = 0;
 
 
 /////////////////////////
@@ -188,6 +189,7 @@ void main(int argc, char **argv)
 {
 	/* Set up the display window. */
 	glutInit(&argc, argv);
+	//Get initial cohesion, allignment, and seperation values from console
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(INIT_WINDOW_POSITION[0], INIT_WINDOW_POSITION[1]);
 	glutInitWindowSize(currWindowSize[0], currWindowSize[1]);
@@ -248,6 +250,49 @@ void KeyboardPress(unsigned char pressedKey, int mouseXPosition, int mouseYPosit
 		case 'M': { currColor = magenta;	break; }
 		case 'n':
 		case 'N': { currColor = none;		break; }
+
+		//NEW
+		//User cohesion manipulation
+		case 'k': //Decrement
+		{ 
+			if (G_CohesionMultiplier > 0)
+			{
+				G_CohesionMultiplier--;
+			}
+			else {
+				G_CohesionMultiplier = 0;
+			}
+			break; 
+		}
+		case 'K': { G_CohesionMultiplier++;		break; } //Increment
+		
+		//User allignment manipulation
+		case 'a': //Decrement
+		{
+			if (G_AllignmentMultiplier > 0)
+			{
+				G_AllignmentMultiplier--;
+			}
+			else {
+				G_AllignmentMultiplier = 0;
+			}
+			break;
+		}
+		case 'A': { G_AllignmentMultiplier++;		break; } //Increment
+
+		//User seperation manipulation
+		case 's': //Decrement
+		{
+			if (G_SeperationMultiplier > 0)
+			{
+				G_SeperationMultiplier--;
+			}
+			else {
+				G_SeperationMultiplier = 0;
+			}
+			break;
+		}
+		case 'S': { G_SeperationMultiplier++;		break; } //Increment
 	}
 }
 
