@@ -178,6 +178,9 @@ void UpdateTitleBar();
 //Random number generator
 float GenerateRandomNumber(float lowerBound, float upperBound);
 
+//Keep ships inside window
+void AdjustToWindow(Ship &currentShp);
+
 
 /* The main function: uses the OpenGL Utility Toolkit to set */
 /* the window up to display the window and its contents.     */
@@ -259,6 +262,25 @@ void TimerFunction(int value)
 
 	Ship currShp;
 
+	for (i = 1; i <= shipList.getSize(); i++)
+	{
+		currShp = shipList.getHeadValue();
+		//shipList.removeHead();
+
+		//3 Movements - causes program to freeze
+		//CohesionShips();
+		//AllignmentShips();
+		//SeperationShips();
+
+		// Update ship position //
+		currShp.pos[0] += currShp.xInc;
+		currShp.pos[1] += currShp.yInc;
+
+		AdjustToWindow(currShp);
+
+		++shipList;
+	}
+
 	for (i = 1; i <= circleList.getSize(); i++)
 	{
 		currCircle = circleList.getHeadValue();
@@ -269,30 +291,64 @@ void TimerFunction(int value)
 		++circleList;
 	}
 
-	for (i = 1; i <= shipList.getSize(); i++)
-	{
-		currShp = shipList.getHeadValue();
-		//shipList.removeHead();
-
-		// Update ship position //
-		currShp.pos[0] += currShp.xInc;
-		currShp.pos[1] += currShp.yInc;
-
-		++shipList;
-	}
-
-
-
 
 	DisplaceShips();
-	//3 Movements
+	//3 Movements - works, but not like it should
 	CohesionShips();
 	AllignmentShips();
 	SeperationShips();
 
+	UpdateTitleBar();
+
 	// Force a redraw after 20 milliseconds. //
 	glutPostRedisplay();
 	glutTimerFunc( 20, TimerFunction, 1 );
+}
+
+/* Function to adjust the position of the parameterized ship to ensure */
+/* that the ship remains inside the boundaries of the display window.  */
+void AdjustToWindow(Ship &currentShp)
+{
+	bool tooHigh, tooLow, tooLeft, tooRight;
+	GLfloat x, y;
+
+	// Determine whether ship exceeds window boundaries. //
+	tooHigh = tooLow = tooLeft = tooRight = false;
+	for (int i = 0; i < shipList.getSize(); i++)
+	{
+		x = currentShp.pos[0] * SHIP_RADIUS;
+		y = currentShp.pos[1] * SHIP_RADIUS;
+		if (x > windowWidth / 2.0)
+			tooRight = true;
+		else if (x < -windowWidth / 2.0)
+			tooLeft = true;
+		if (y > windowHeight / 2.0)
+			tooHigh = true;
+		else if (y < -windowHeight / 2.0)
+			tooLow = true;
+	}
+
+	// Adjust position if window bounds exceeded. //
+	if (tooRight)
+	{
+		currentShp.xInc *= -1.0f;
+		currentShp.pos[0] = windowWidth / 2.0f - SHIP_RADIUS;
+	}
+	else if (tooLeft)
+	{
+		currentShp.xInc *= -1.0f;
+		currentShp.pos[0] = windowWidth / 2.0f + SHIP_RADIUS;
+	}
+	if (tooHigh)
+	{
+		currentShp.yInc *= -1.0f;
+		currentShp.pos[1] = windowWidth / 2.0f - SHIP_RADIUS;
+	}
+	else if (tooLow)
+	{
+		currentShp.yInc *= -1.0f;
+		currentShp.pos[1] = windowWidth / 2.0f + SHIP_RADIUS;
+	}
 }
 
 /* Function to cycle through the ships and determine whether */
