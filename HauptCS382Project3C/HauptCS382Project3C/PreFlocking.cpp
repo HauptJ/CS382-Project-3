@@ -189,7 +189,18 @@ void main(int argc, char **argv)
 {
 	/* Set up the display window. */
 	glutInit(&argc, argv);
-	//Get initial cohesion, allignment, and seperation values from console
+	//TODO??? Get initial cohesion, allignment, and seperation values from console
+
+	//Display Instructions to user in console
+	cout << "INSTRUCTIONS" << endl;
+	cout << "k (lower case) decrease cohesion by 1" << endl;
+	cout << "K (upper case) increase cohesion by 1" << endl;
+	cout << "a (lower case) decrease allignment by 1" << endl;
+	cout << "A (upper case) increase allignment by 1" << endl;
+	cout << "s (lower case) decrease seperation by 1" << endl;
+	cout << "S (upper case) increase seperation by 1" << endl;
+	cout << "Due to a bug you must spin scroll wheel to see cohesion, allignment and seperation effects." << endl;
+
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(INIT_WINDOW_POSITION[0], INIT_WINDOW_POSITION[1]);
 	glutInitWindowSize(currWindowSize[0], currWindowSize[1]);
@@ -227,7 +238,7 @@ void MouseClick(int mouseButton, int mouseState, int mouseXPosition, int mouseYP
 	Display();
 }
 
-
+/* WORKS CORRECTLY */
 /* Function to react to the pressing of keyboard keys by the user, */
 /* by changing the default color of newly generated ripples.       */
 void KeyboardPress(unsigned char pressedKey, int mouseXPosition, int mouseYPosition)
@@ -296,7 +307,7 @@ void KeyboardPress(unsigned char pressedKey, int mouseXPosition, int mouseYPosit
 	}
 }
 
-
+/* DOES NOT WORK CORRECTLY */
 /* Function to update the expanding radius values of all       */
 /* current ripples, removing those that exceed a certain size. */
 /* This function also activates the point displacement.        */
@@ -350,6 +361,7 @@ void TimerFunction(int value)
 	glutTimerFunc( 20, TimerFunction, 1 );
 }
 
+/* DOES NOT WORK CORRECTLY */
 /* Function to adjust the position of the parameterized ship to ensure */
 /* that the ship remains inside the boundaries of the display window.  */
 void AdjustToWindow(Ship &currentShp)
@@ -529,10 +541,8 @@ void SeperationShips()
 	int i, j;
 	Ship shp;
 	Ripple cir;
-	//float intensity;
 	float minX = 0;
 	float minY = 0;
-	//int tally; //number of ships in area
 
 	for (i = 1; i <= shipList.getSize(); i++)
 	{
@@ -551,8 +561,6 @@ void SeperationShips()
 				shp.pos[1] = minY * G_SeperationMultiplier;
 			}
 			++circleList;
-			//tally = circleList.getSize(); //total number of shits in the circle.
-			//++tally;
 		}
 		Normalize(shp.delta);
 		shipList.insert(shp);
@@ -582,17 +590,17 @@ void ConvertToCharacterArray(int value, char valueArray[])
 /* the cohesion, allignment and seperation multipliers */
 void UpdateTitleBar()
 {
-	char label[100] = "Values: ";
+	char label[100] = "Values - ";
 
 	char CohesionLabel[15] = "";
 	ConvertToCharacterArray(G_CohesionMultiplier, CohesionLabel);
-	strcat_s(label, 100, CohesionLabel);
 	strcat_s(label, 100, " Cohesion: ");
+	strcat_s(label, 100, CohesionLabel);
 
 	char AllignmentLabel[15] = "";
 	ConvertToCharacterArray(G_AllignmentMultiplier, AllignmentLabel);
-	strcat_s(label, 100, AllignmentLabel);
 	strcat_s(label, 100, " Allignment ");
+	strcat_s(label, 100, AllignmentLabel);
 
 	char SeperationLabel[15] = "";
 	ConvertToCharacterArray(G_SeperationMultiplier, SeperationLabel);
