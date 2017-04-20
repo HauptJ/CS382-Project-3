@@ -1,5 +1,6 @@
 /********************************************************************/
 /* Filename: PreFlocking.cpp                                        */
+/* Last modified: 19 Apr 17 by Joshua Haupt                         */
 /*                                                                  */
 /* This program generates a large 2D system of delta-shaped "ships" */
 /* that float on an empty background. The user generates disruptive */
@@ -51,8 +52,6 @@ const float MIN_SHIP_DELTA				= -0.0001f;				// Ship Trajectory's   //
 const float MAX_SHIP_DELTA				=  0.0001f;				// Lower, Upper Bounds //
 const float VECTOR_SIZE					= 0.01f;
 const char  DEFAULT_TITLE[]				= "MOUSE: RIPPLES; KEYBOARD: COLORS (wrygcbmn)";
-
-//NEW
 
 enum color { white, red, yellow, green, cyan, blue, magenta, none };	// Color Index Values //
 
@@ -146,7 +145,7 @@ LinkedList<Ripple> circleList;			// Linked list of ripple circles.  //
 LinkedList<Ship>   shipList;			// Linked list of ships.           //
 color currColor			= none;			// Current new ripple color.       //
 
-//NEW
+// NEW //
 //Mulipliers
 int G_CohesionMultiplier = 0;
 int G_AllignmentMultiplier = 0;
@@ -165,21 +164,21 @@ void Display();
 void InitShips();
 void Normalize(float vector[]);
 void ResizeWindow(GLsizei w, GLsizei h);
-//NEW
+// NEW //
 //Movements
-//3 Movements
+//3 Movement Effects
 void CohesionShips();
 void AllignmentShips();
 void SeperationShips();
 
-//Title
+//Window Title - WORKS CORRECTLY
 void ConvertToCharacterArray(int value, char valueArray[]);
 void UpdateTitleBar();
 
 //Random number generator
 float GenerateRandomNumber(float lowerBound, float upperBound);
 
-//Keep ships inside window
+//Keep ships inside window - DOES NOT WORK CORRECTLY
 void AdjustToWindow(Ship &currentShp);
 
 
@@ -189,16 +188,15 @@ void main(int argc, char **argv)
 {
 	/* Set up the display window. */
 	glutInit(&argc, argv);
-	//TODO??? Get initial cohesion, allignment, and seperation values from console
-
-	//Display Instructions to user in console
+	// NEW //
+	// Display Instructions to user in console
 	cout << "INSTRUCTIONS" << endl;
-	cout << "k (lower case) decrease cohesion by 1" << endl;
-	cout << "K (upper case) increase cohesion by 1" << endl;
-	cout << "a (lower case) decrease allignment by 1" << endl;
-	cout << "A (upper case) increase allignment by 1" << endl;
-	cout << "s (lower case) decrease seperation by 1" << endl;
-	cout << "S (upper case) increase seperation by 1" << endl;
+	cout << "k (lower case) decrease cohesion multiplier by 1" << endl;
+	cout << "K (upper case) increase cohesion muliplier by 1" << endl;
+	cout << "a (lower case) decrease allignment muliplier by 1" << endl;
+	cout << "A (upper case) increase allignment muliplier by 1" << endl;
+	cout << "s (lower case) decrease seperation muliplier by 1" << endl;
+	cout << "S (upper case) increase seperation muliplier by 1" << endl;
 	cout << "Due to a bug you must spin scroll wheel to see cohesion, allignment and seperation effects." << endl;
 
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
@@ -262,7 +260,7 @@ void KeyboardPress(unsigned char pressedKey, int mouseXPosition, int mouseYPosit
 		case 'n':
 		case 'N': { currColor = none;		break; }
 
-		//NEW
+		// NEW //
 		//User cohesion manipulation
 		case 'k': //Decrement
 		{ 
@@ -318,17 +316,11 @@ void TimerFunction(int value)
 
 	Ship currShp;
 
+	// Update every ship's postion based on its velocity
 	for (i = 1; i <= shipList.getSize(); i++)
 	{
 		currShp = shipList.getHeadValue();
-		//shipList.removeHead();
-
-		//3 Movements - causes program to freeze
-		//CohesionShips();
-		//AllignmentShips();
-		//SeperationShips();
-
-		// Update ship position //
+		// Update ship position based on ship's velocity //
 		currShp.pos[0] += currShp.xInc;
 		currShp.pos[1] += currShp.yInc;
 
@@ -453,15 +445,13 @@ void DisplaceShips()
 
 /* Function to cycle through the ships and determine whether */
 /* any ripple is encapsulating a ship's center. If so, the   */
-/* ship's position is modified to reflect the displacement   */
-/* caused by the emanating ripple.                           */
+/* ship's position is modified to reflect the cohesion       */
+/* effect based on the cohesion multiplier.                  */
 void CohesionShips()
 {
 	int i, j;
 	Ship shp;
 	Ripple cir;
-	//Ship cir;
-	//float intensity;
 	float sumX = 0;
 	float sumY = 0;
 	int tally = 0; //number of ships in area
@@ -483,7 +473,6 @@ void CohesionShips()
 				shp.pos[1] = (sumY / tally) * G_CohesionMultiplier;
 			}
 		++circleList;
-		//tally = circleList.getSize(); //total number of shits in the circle.
 		++tally;
 		}
 		Normalize(shp.delta);
@@ -494,14 +483,13 @@ void CohesionShips()
 
 /* Function to cycle through the ships and determine whether */
 /* any ripple is encapsulating a ship's center. If so, the   */
-/* ship's position is modified to reflect the displacement   */
-/* caused by the emanating ripple.                           */
+/* ship's orientation is modified to reflect the allignment  */
+/* effect based on the allignment multiplier.                */
 void AllignmentShips()
 {
 	int i, j;
 	Ship shp;
 	Ripple cir;
-	//float intensity;
 	float sumDeltaX = 0;
 	float sumDeltaY = 0;
 	int tally = 0; //number of ships in area
@@ -523,7 +511,6 @@ void AllignmentShips()
 				shp.pos[1] = (sumDeltaY / tally) * G_AllignmentMultiplier;
 			}
 			++circleList;
-			//tally = circleList.getSize(); //total number of shits in the circle.
 			++tally;
 		}
 		Normalize(shp.delta);
@@ -534,8 +521,8 @@ void AllignmentShips()
 
 /* Function to cycle through the ships and determine whether */
 /* any ripple is encapsulating a ship's center. If so, the   */
-/* ship's position is modified to reflect the displacement   */
-/* caused by the emanating ripple.                           */
+/* ship's position is modified to reflect the seperation     */
+/* effect based on the seperation multiplier.                */
 void SeperationShips()
 {
 	int i, j;
@@ -634,11 +621,6 @@ void Display()
 		++shipList;
 	}
 
-	//3 Movements
-	//CohesionShips();
-	//AllignmentShips();
-	//SeperationShips();
-
 	glutSwapBuffers();
 	glFlush();
 }
@@ -658,7 +640,7 @@ float GenerateRandomNumber(float lowerBound, float upperBound)
 }
 
 /* Random generation of the ships within the window.  */
-/* The color of each ship is also randomly generated. */
+/* The color AND velocity of each ship is also randomly generated. */
 void InitShips()
 {
 	Ship shp;
@@ -675,7 +657,8 @@ void InitShips()
 		Normalize(shp.delta);
 		shp.clr = color(rand() % NBR_COLORS);
 
-		//NEW random velocity
+		// NEW // 
+		// Initialize every ship with a random velocity
 		shp.speed = GenerateRandomNumber(0.010f, 0.045f); // random speed
 		shp.xInc = GenerateRandomNumber(shp.speed / 4.0, shp.speed);
 		shp.yInc = sqrt(shp.speed * shp.speed - shp.xInc * shp.xInc);
