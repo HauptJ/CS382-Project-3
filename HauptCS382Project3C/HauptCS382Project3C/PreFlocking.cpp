@@ -106,7 +106,11 @@ class Ship
 		float delta[2];	// Trajectory vector of flocker //
 		color clr;		// Color of flocker             //
 
-		//NEW for randomly generatoed velocity
+		// NEW //
+
+		float rad;      // Radius of circle                //
+
+		// randomly generated velocity
 
 		float speed;		// Flocker speed
 
@@ -120,6 +124,10 @@ class Ship
 			float currColor[3] = { CIRCLE_COLOR[int(clr)][0],
 									CIRCLE_COLOR[int(clr)][1],
 									CIRCLE_COLOR[int(clr)][2] };
+
+			/*pos[0] += xInc;
+			pos[1] += yInc;*/
+
 			glColor3fv(currColor);
 			glLineWidth(SHIP_THICKNESS);
 
@@ -324,6 +332,10 @@ void TimerFunction(int value)
 		currShp.pos[0] += currShp.xInc;
 		currShp.pos[1] += currShp.yInc;
 
+		/*CohesionShips();
+		AllignmentShips();
+		SeperationShips();*/
+
 		AdjustToWindow(currShp);
 
 		++shipList;
@@ -342,9 +354,9 @@ void TimerFunction(int value)
 
 	DisplaceShips();
 	//3 Movements - works, but not like it should
-	CohesionShips();
+	/*CohesionShips();
 	AllignmentShips();
-	SeperationShips();
+	SeperationShips();*/
 
 	UpdateTitleBar();
 
@@ -451,7 +463,7 @@ void CohesionShips()
 {
 	int i, j;
 	Ship shp;
-	Ripple cir;
+	//Ripple cir;
 	float sumX = 0;
 	float sumY = 0;
 	int tally = 0; //number of ships in area
@@ -462,9 +474,9 @@ void CohesionShips()
 		shipList.removeHead();
 		for (j = 1; j <= circleList.getSize(); j++)
 		{
-			cir = circleList.getHeadValue();
+			//cir = circleList.getHeadValue();
 
-			if (pow(cir.pos[0] - shp.pos[0], 2) + pow(cir.pos[1] - shp.pos[1], 2) < pow(cir.rad, 2))
+			if (pow(shp.pos[0], 2) + pow(shp.pos[1], 2) < pow(shp.rad, 2))
 			{
 				sumX += shp.pos[0];
 				sumY += shp.pos[1];
@@ -489,7 +501,7 @@ void AllignmentShips()
 {
 	int i, j;
 	Ship shp;
-	Ripple cir;
+	//Ripple cir;
 	float sumDeltaX = 0;
 	float sumDeltaY = 0;
 	int tally = 0; //number of ships in area
@@ -500,9 +512,9 @@ void AllignmentShips()
 		shipList.removeHead();
 		for (j = 1; j <= circleList.getSize(); j++)
 		{
-			cir = circleList.getHeadValue();
+			//cir = circleList.getHeadValue();
 
-			if (pow(cir.pos[0] - shp.pos[0], 2) + pow(cir.pos[1] - shp.pos[1], 2) < pow(cir.rad, 2))
+			if (pow(shp.pos[0], 2) + pow(shp.pos[1], 2) < pow(shp.rad, 2))
 			{
 				sumDeltaX += shp.delta[0];
 				sumDeltaY += shp.delta[1];
@@ -527,7 +539,7 @@ void SeperationShips()
 {
 	int i, j;
 	Ship shp;
-	Ripple cir;
+	//Ripple cir;
 	float minX = 0;
 	float minY = 0;
 
@@ -537,9 +549,9 @@ void SeperationShips()
 		shipList.removeHead();
 		for (j = 1; j <= circleList.getSize(); j++)
 		{
-			cir = circleList.getHeadValue();
+			//cir = circleList.getHeadValue();
 
-			if (pow(cir.pos[0] - shp.pos[0], 2) + pow(cir.pos[1] - shp.pos[1], 2) < pow(cir.rad, 2))
+			if (pow(shp.pos[0], 2) + pow(shp.pos[1], 2) < pow(shp.rad, 2))
 			{
 				minX = shp.pos[0];
 				minY = shp.pos[1];
@@ -617,6 +629,10 @@ void Display()
 	for (i = 1; i <= shipList.getSize(); i++)
 	{
 		shp = shipList.getHeadValue();
+
+		/*shp.pos[0] += shp.xInc;
+		shp.pos[1] += shp.yInc;*/
+
 		shp.draw();
 		++shipList;
 	}
@@ -658,6 +674,11 @@ void InitShips()
 		shp.clr = color(rand() % NBR_COLORS);
 
 		// NEW // 
+
+		// Initialize radius for circle aroud every ship
+
+		shp.rad = INITIAL_RADIUS / 2;
+		
 		// Initialize every ship with a random velocity
 		shp.speed = GenerateRandomNumber(0.010f, 0.045f); // random speed
 		shp.xInc = GenerateRandomNumber(shp.speed / 4.0, shp.speed);
