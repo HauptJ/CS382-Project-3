@@ -52,16 +52,6 @@ const float VECTOR_SIZE					= 0.01f;
 const char  DEFAULT_TITLE[]				= "MOUSE: RIPPLES; KEYBOARD: COLORS (wrygcbmn)";
 
 //NEW
-//3 Movements
-void CohesionShips();
-void AllignmentShips();
-void SeperationShips();
-
-
-//Mulipliers
-int G_CohesionMultiplier = 0;
-int G_AllignmentMultiplier = 0;
-int G_SeperationMultiplier = 0;
 
 enum color { white, red, yellow, green, cyan, blue, magenta, none };	// Color Index Values //
 
@@ -116,6 +106,14 @@ class Ship
 		float delta[2];	// Trajectory vector of flocker //
 		color clr;		// Color of flocker             //
 
+		//NEW for randomly generatoed velocity
+
+		float speed;		// Flocker speed
+
+		float xInc;           // Flocker's motion increment in x-dimension.           //
+		float yInc;           // Flocker's motion increment in y-dimension.           //
+
+
 		void draw()
 		{
 			float theta = atan2(delta[1], delta[0]);
@@ -147,6 +145,13 @@ LinkedList<Ripple> circleList;			// Linked list of ripple circles.  //
 LinkedList<Ship>   shipList;			// Linked list of ships.           //
 color currColor			= none;			// Current new ripple color.       //
 
+//NEW
+//Mulipliers
+int G_CohesionMultiplier = 3;
+int G_AllignmentMultiplier = 3;
+int G_SeperationMultiplier = 10;
+
+
 /////////////////////////
 // Function Prototypes //
 /////////////////////////
@@ -161,10 +166,17 @@ void Normalize(float vector[]);
 void ResizeWindow(GLsizei w, GLsizei h);
 //NEW
 //Movements
+//3 Movements
+void CohesionShips();
+void AllignmentShips();
+void SeperationShips();
 
 //Title
 void ConvertToCharacterArray(int value, char valueArray[]);
 void UpdateTitleBar();
+
+//Random number generator
+float GenerateRandomNumber(float lowerBound, float upperBound);
 
 
 /* The main function: uses the OpenGL Utility Toolkit to set */
@@ -245,6 +257,8 @@ void TimerFunction(int value)
 	int i;
 	Ripple currCircle;
 
+	Ship currShp;
+
 	for (i = 1; i <= circleList.getSize(); i++)
 	{
 		currCircle = circleList.getHeadValue();
@@ -254,6 +268,22 @@ void TimerFunction(int value)
 			circleList.insert( currCircle );
 		++circleList;
 	}
+
+	for (i = 1; i <= shipList.getSize(); i++)
+	{
+		currShp = shipList.getHeadValue();
+		//shipList.removeHead();
+
+		// Update ship position //
+		currShp.pos[0] += currShp.xInc;
+		currShp.pos[1] += currShp.yInc;
+
+		++shipList;
+	}
+
+
+
+
 	DisplaceShips();
 	//3 Movements
 	CohesionShips();
@@ -317,6 +347,7 @@ void CohesionShips()
 	int i, j;
 	Ship shp;
 	Ripple cir;
+	//Ship cir;
 	//float intensity;
 	float sumX = 0;
 	float sumY = 0;
@@ -360,7 +391,7 @@ void AllignmentShips()
 	//float intensity;
 	float sumDeltaX = 0;
 	float sumDeltaY = 0;
-	int tally =0; //number of ships in area
+	int tally = 0; //number of ships in area
 
 	for (i = 1; i <= shipList.getSize(); i++)
 	{
@@ -494,10 +525,28 @@ void Display()
 		++shipList;
 	}
 
+	//3 Movements
+	//CohesionShips();
+	//AllignmentShips();
+	//SeperationShips();
+
 	glutSwapBuffers();
 	glFlush();
 }
 
+/* Random Number Generator */
+float GenerateRandomNumber(float lowerBound, float upperBound)
+{
+	static bool firstTime = true;
+	static time_t randomNumberSeed;
+	if (firstTime)
+	{
+		time(&randomNumberSeed);
+		firstTime = false;
+		srand(unsigned int(randomNumberSeed));
+	}
+	return (lowerBound + ((upperBound - lowerBound) * (float(rand()) / RAND_MAX)));
+}
 
 /* Random generation of the ships within the window.  */
 /* The color of each ship is also randomly generated. */
@@ -516,6 +565,18 @@ void InitShips()
 		shp.delta[1] = MIN_SHIP_DELTA + (float(rand()) / RAND_MAX) * (MAX_SHIP_DELTA - MIN_SHIP_DELTA);
 		Normalize(shp.delta);
 		shp.clr = color(rand() % NBR_COLORS);
+
+		//NEW random velocity
+		shp.speed = GenerateRandomNumber(0.010f, 0.045f); // random speed
+		shp.xInc = GenerateRandomNumber(shp.speed / 4.0, shp.speed);
+		shp.yInc = sqrt(shp.speed * shp.speed - shp.xInc * shp.xInc);
+		float randNbr = GenerateRandomNumber(-1.0, 1.0);
+		if (randNbr < 0.0f)
+			shp.xInc *= -1.0f;
+		randNbr = GenerateRandomNumber(-1.0, 1.0);
+		if (randNbr < 0.0f)
+			shp.yInc *= -1.0f;
+
 		shipList.insert(shp);
 	}
 }
